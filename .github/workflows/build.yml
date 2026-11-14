@@ -1,4 +1,4 @@
-name: Build Web App APK
+name: Build Android APK
 
 on:
   push:
@@ -12,9 +12,30 @@ jobs:
     - name: 📥 Отримання коду
       uses: actions/checkout@v4
 
-    - name: 📦 Збереження веб-файлів як артефакту
+    - name: 🟢 Встановлення Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: ☕ Встановлення Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: 📱 Збірка APK через Cordova
+      run: |
+        npm install -g cordova
+        cordova create myapp com.southpark.app SouthPark
+        cd myapp
+        cordova platform add android
+        # Копіюємо твій index.html у проєкт мобільного додатку
+        cp ../index.html www/index.html
+        cordova build android
+
+    - name: 📦 Збереження готового APK
       uses: actions/upload-artifact@v4
       with:
-        name: southpark-app-web
-        path: index.html
+        name: southpark-app-debug
+        path: myapp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
 
